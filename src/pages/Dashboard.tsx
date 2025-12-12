@@ -96,12 +96,6 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
       <div className="text-center mb-6">
-        {/* Logo placeholder - in a real app you would use an actual logo image */}
-        <div className="mb-4 flex justify-center">
-          <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16 flex items-center justify-center text-gray-500">
-            Polines Logo
-          </div>
-        </div>
         <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
           Monitoring Kualitas Daya
         </h1>
