@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Gauge, Zap, Bolt, Power } from "lucide-react";
+import { Gauge, Zap, Bolt, Power, Activity } from "lucide-react";
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import mqtt from "mqtt";
 
@@ -12,6 +12,7 @@ const Dashboard = () => {
   const [current, setCurrent] = useState<number>(0);
   const [kwh, setKwh] = useState<number>(0);
   const [wattage, setWattage] = useState<number>(0);
+  const [frequency, setFrequency] = useState<number>(0);
 
   useEffect(() => {
     // Connect to HiveMQ broker
@@ -51,6 +52,14 @@ const Dashboard = () => {
           console.log("Subscribed to sensor/watt");
         }
       });
+      
+      client.subscribe("sensor/freq", (err) => {
+        if (err) {
+          console.error("Subscription error for sensor/freq:", err);
+        } else {
+          console.log("Subscribed to sensor/freq");
+        }
+      });
     });
 
     client.on("message", (topic, message) => {
@@ -70,6 +79,9 @@ const Dashboard = () => {
             break;
           case "sensor/watt":
             setWattage(value);
+            break;
+          case "sensor/freq":
+            setFrequency(value);
             break;
           default:
             break;
@@ -92,6 +104,7 @@ const Dashboard = () => {
   // Calculate percentages for gauge visualization
   const voltagePercentage = Math.min(100, Math.max(0, (voltage / 300) * 100)); // Assuming 300V max
   const currentPercentage = Math.min(100, Math.max(0, (current / 50) * 100)); // Assuming 50A max
+  const frequencyPercentage = Math.min(100, Math.max(0, ((frequency - 45) / 10) * 100)); // Assuming 45-55Hz range
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
@@ -101,7 +114,7 @@ const Dashboard = () => {
         </h1>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-6xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 w-full max-w-6xl">
         {/* Voltage Card with Gauge */}
         <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -167,6 +180,26 @@ const Dashboard = () => {
             <p className="text-xs text-muted-foreground">
               Current power usage
             </p>
+          </CardContent>
+        </Card>
+        
+        {/* Frequency Card */}
+        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Frequency</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold mb-2">{frequency.toFixed(1)} Hz</div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+              <div 
+                className="bg-purple-600 h-2.5 rounded-full" 
+                style={{ width: `${frequencyPercentage}%` }}
+              ></div>
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Current frequency reading
+            </div>
           </CardContent>
         </Card>
       </div>
