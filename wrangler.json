@@ -1,0 +1,7 @@
+{
+  "name": "kendalimodern",
+  "compatibility_date": "2024-12-12",
+  "assets": {
+    "directory": "./dist"
+  }
+}

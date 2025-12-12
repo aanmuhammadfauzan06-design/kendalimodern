@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Gauge, Zap, Bolt, Power, Activity } from "lucide-react";
+import { Gauge, Zap, Bolt, Power, Activity, FileSpreadsheet } from "lucide-react";
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import mqtt from "mqtt";
 
@@ -114,7 +114,7 @@ const Dashboard = () => {
         </h1>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 w-full max-w-6xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 w-full max-w-6xl">
         {/* Voltage Card with Gauge */}
         <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -200,6 +200,29 @@ const Dashboard = () => {
             <div className="text-xs text-muted-foreground">
               Current frequency reading
             </div>
+          </CardContent>
+        </Card>
+        
+        {/* Google Sheets Card */}
+        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Data Records</CardTitle>
+            <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <a 
+              href="https://docs.google.com/spreadsheets/d/1aujfCfm4xMmnAkyia0wp-D1gmY_hkLwG_xMsCQ_nwZs/edit?gid=0#gid=0" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-block w-full"
+            >
+              <button className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors duration-300">
+                View GSheet
+              </button>
+            </a>
+            <p className="text-xs text-muted-foreground mt-2">
+              Access historical data records
+            </p>
           </CardContent>
         </Card>
       </div>
