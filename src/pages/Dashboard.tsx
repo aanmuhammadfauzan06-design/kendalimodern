@@ -9,9 +9,9 @@ import mqtt from "mqtt";
 const Dashboard = () => {
   // State for real-time data
   const [voltage, setVoltage] = useState<number>(0);
-  const [current, setCurrent] = useState<number>(15.2);
-  const [kwh, setKwh] = useState<number>(1234.56);
-  const [wattage, setWattage] = useState<number>(3344.0);
+  const [current, setCurrent] = useState<number>(0);
+  const [kwh, setKwh] = useState<number>(0);
+  const [wattage, setWattage] = useState<number>(0);
 
   useEffect(() => {
     // Connect to HiveMQ broker
@@ -19,26 +19,63 @@ const Dashboard = () => {
     
     client.on("connect", () => {
       console.log("Connected to MQTT broker");
-      // Subscribe to the voltage topic
+      // Subscribe to all topics
       client.subscribe("sensor/tegangan", (err) => {
         if (err) {
-          console.error("Subscription error:", err);
+          console.error("Subscription error for sensor/tegangan:", err);
         } else {
           console.log("Subscribed to sensor/tegangan");
+        }
+      });
+      
+      client.subscribe("sensor/arus", (err) => {
+        if (err) {
+          console.error("Subscription error for sensor/arus:", err);
+        } else {
+          console.log("Subscribed to sensor/arus");
+        }
+      });
+      
+      client.subscribe("sensor/kwh", (err) => {
+        if (err) {
+          console.error("Subscription error for sensor/kwh:", err);
+        } else {
+          console.log("Subscribed to sensor/kwh");
+        }
+      });
+      
+      client.subscribe("sensor/watt", (err) => {
+        if (err) {
+          console.error("Subscription error for sensor/watt:", err);
+        } else {
+          console.log("Subscribed to sensor/watt");
         }
       });
     });
 
     client.on("message", (topic, message) => {
-      if (topic === "sensor/tegangan") {
-        try {
-          const voltageValue = parseFloat(message.toString());
-          if (!isNaN(voltageValue)) {
-            setVoltage(voltageValue);
-          }
-        } catch (error) {
-          console.error("Error parsing voltage data:", error);
+      try {
+        const value = parseFloat(message.toString());
+        if (isNaN(value)) return;
+        
+        switch (topic) {
+          case "sensor/tegangan":
+            setVoltage(value);
+            break;
+          case "sensor/arus":
+            setCurrent(value);
+            break;
+          case "sensor/kwh":
+            setKwh(value);
+            break;
+          case "sensor/watt":
+            setWattage(value);
+            break;
+          default:
+            break;
         }
+      } catch (error) {
+        console.error(`Error parsing data for topic ${topic}:`, error);
       }
     });
 
@@ -52,6 +89,10 @@ const Dashboard = () => {
     };
   }, []);
 
+  // Calculate percentages for gauge visualization
+  const voltagePercentage = Math.min(100, Math.max(0, (voltage / 300) * 100)); // Assuming 300V max
+  const currentPercentage = Math.min(100, Math.max(0, (current / 50) * 100)); // Assuming 50A max
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
       <div className="text-center mb-8">
@@ -63,49 +104,68 @@ const Dashboard = () => {
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-6xl">
+        {/* Voltage Card with Gauge */}
         <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Voltage</CardTitle>
             <Bolt className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{voltage.toFixed(1)} V</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold mb-2">{voltage.toFixed(1)} V</div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+              <div 
+                className="bg-blue-600 h-2.5 rounded-full" 
+                style={{ width: `${voltagePercentage}%` }}
+              ></div>
+            </div>
+            <div className="text-xs text-muted-foreground">
               Current voltage reading
-            </p>
+            </div>
           </CardContent>
         </Card>
+        
+        {/* Current Card with Gauge */}
         <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Current</CardTitle>
             <Zap className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{current} A</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold mb-2">{current.toFixed(1)} A</div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+              <div 
+                className="bg-green-600 h-2.5 rounded-full" 
+                style={{ width: `${currentPercentage}%` }}
+              ></div>
+            </div>
+            <div className="text-xs text-muted-foreground">
               Current amperage reading
-            </p>
+            </div>
           </CardContent>
         </Card>
+        
+        {/* Total kWh Card */}
         <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total kWh</CardTitle>
             <Gauge className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{kwh} kWh</div>
+            <div className="text-2xl font-bold">{kwh.toFixed(2)} kWh</div>
             <p className="text-xs text-muted-foreground">
               Accumulated energy consumption
             </p>
           </CardContent>
         </Card>
+        
+        {/* Wattage Card */}
         <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Wattage</CardTitle>
             <Power className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{wattage} W</div>
+            <div className="text-2xl font-bold">{wattage.toFixed(0)} W</div>
             <p className="text-xs text-muted-foreground">
               Current power usage
             </p>
