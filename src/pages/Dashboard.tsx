@@ -95,14 +95,18 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-2">
-          Energy Monitoring Dashboard
+      <div className="text-center mb-6">
+        {/* Logo placeholder - in a real app you would use an actual logo image */}
+        <div className="mb-4 flex justify-center">
+          <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16 flex items-center justify-center text-gray-500">
+            Polines Logo
+          </div>
+        </div>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+          Monitoring Kualitas Daya
         </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400">
-          Real-time overview of your energy consumption.
-        </p>
       </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-6xl">
         {/* Voltage Card with Gauge */}
         <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
