@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Gauge, Zap, Bolt, Power, Activity, FileSpreadsheet } from "lucide-react";
+import { Gauge, Zap, Bolt, Power, Activity, FileSpreadsheet, Wallet } from "lucide-react";
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import mqtt from "mqtt";
 
@@ -14,6 +14,7 @@ const Dashboard = () => {
   const [wattage, setWattage] = useState<number>(0);
   const [frequency, setFrequency] = useState<number>(0);
   const [powerFactor, setPowerFactor] = useState<number>(0);
+  const [cost, setCost] = useState<number>(0);
 
   useEffect(() => {
     // Connect to HiveMQ broker
@@ -69,6 +70,14 @@ const Dashboard = () => {
           console.log("Subscribed to sensor/pf");
         }
       });
+      
+      client.subscribe("sensor/cost", (err) => {
+        if (err) {
+          console.error("Subscription error for sensor/cost:", err);
+        } else {
+          console.log("Subscribed to sensor/cost");
+        }
+      });
     });
 
     client.on("message", (topic, message) => {
@@ -94,6 +103,9 @@ const Dashboard = () => {
             break;
           case "sensor/pf":
             setPowerFactor(value);
+            break;
+          case "sensor/cost":
+            setCost(value);
             break;
           default:
             break;
@@ -232,6 +244,20 @@ const Dashboard = () => {
             <div className="text-2xl font-bold">{kwh.toFixed(2)} kWh</div>
             <p className="text-xs text-muted-foreground">
               Accumulated energy consumption
+            </p>
+          </CardContent>
+        </Card>
+        
+        {/* Cost Card */}
+        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Cost</CardTitle>
+            <Wallet className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">Rp {cost.toLocaleString('id-ID')}</div>
+            <p className="text-xs text-muted-foreground">
+              Current energy cost
             </p>
           </CardContent>
         </Card>
