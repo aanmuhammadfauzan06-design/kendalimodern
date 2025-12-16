@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Gauge, Zap, Bolt, Power, Activity, FileSpreadsheet, Wallet } from "lucide-react";
+import { Gauge, Zap, Bolt, Power, Activity, FileSpreadsheet, Wallet, Clock } from "lucide-react"; // Added Clock icon
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import mqtt from "mqtt";
 
@@ -11,6 +11,7 @@ const Dashboard = () => {
   const [voltage, setVoltage] = useState<number>(0);
   const [current, setCurrent] = useState<number>(0);
   const [kwh, setKwh] = useState<number>(0);
+  const [kwhRealtime, setKwhRealtime] = useState<number>(0); // New state for real-time kWh
   const [wattage, setWattage] = useState<number>(0);
   const [frequency, setFrequency] = useState<number>(0);
   const [powerFactor, setPowerFactor] = useState<number>(0);
@@ -44,6 +45,15 @@ const Dashboard = () => {
           console.error("Subscription error for sensor/kwh:", err);
         } else {
           console.log("Subscribed to sensor/kwh");
+        }
+      });
+
+      // Subscribe to new real-time kWh topic
+      client.subscribe("sensor/kwhrealtime", (err) => {
+        if (err) {
+          console.error("Subscription error for sensor/kwhrealtime:", err);
+        } else {
+          console.log("Subscribed to sensor/kwhrealtime");
         }
       });
       
@@ -94,6 +104,9 @@ const Dashboard = () => {
             break;
           case "sensor/kwh":
             setKwh(value);
+            break;
+          case "sensor/kwhrealtime": // Handle real-time kWh
+            setKwhRealtime(value);
             break;
           case "sensor/watt":
             setWattage(value);
@@ -183,7 +196,7 @@ const Dashboard = () => {
         {/* Wattage Card */}
         <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">watt</CardTitle>
+            <CardTitle className="text-sm font-medium">Wattage</CardTitle>
             <Power className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -231,6 +244,20 @@ const Dashboard = () => {
             <div className="text-xs text-muted-foreground">
               Current power factor reading
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Real-time kWh Card (New) */}
+        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Real-time kWh</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{kwhRealtime.toFixed(2)} kWh</div>
+            <p className="text-xs text-muted-foreground">
+              Instantaneous energy consumption
+            </p>
           </CardContent>
         </Card>
         
