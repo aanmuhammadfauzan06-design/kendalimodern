@@ -90,6 +90,7 @@ const Dashboard = () => {
         
         switch (topic) {
           case "sensor/tegangan":
+            console.log(`MQTT: topic=${topic}, raw_message=${message.toString()}, parsed_value=${value}`);
             setVoltage(value);
             break;
           case "sensor/arus":
@@ -232,9 +233,9 @@ const Dashboard = () => {
                 style={{ width: `${powerFactorPercentage}%` }}
               ></div>
             </div>
-            <div className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground"> {/* Added opening <p> tag here */}
               Current power factor reading
-            </div>
+            </p>
           </CardContent>
         </Card>
         
