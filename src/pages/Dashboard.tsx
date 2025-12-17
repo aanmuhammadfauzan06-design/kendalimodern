@@ -23,19 +23,19 @@ const Dashboard = () => {
     client.on("connect", () => {
       console.log("Connected to MQTT broker");
       // Subscribe to all topics
-      client.subscribe("sensor/tegangan", (err) => {
+      client.subscribe("sensor/tegangan1", (err) => { // Changed topic
         if (err) {
-          console.error("Subscription error for sensor/tegangan:", err);
+          console.error("Subscription error for sensor/tegangan1:", err);
         } else {
-          console.log("Subscribed to sensor/tegangan");
+          console.log("Subscribed to sensor/tegangan1");
         }
       });
       
-      client.subscribe("sensor/arus", (err) => {
+      client.subscribe("sensor/arus1", (err) => { // Changed topic
         if (err) {
-          console.error("Subscription error for sensor/arus:", err);
+          console.error("Subscription error for sensor/arus1:", err);
         } else {
-          console.log("Subscribed to sensor/arus");
+          console.log("Subscribed to sensor/arus1");
         }
       });
       
@@ -89,11 +89,11 @@ const Dashboard = () => {
         }
         
         switch (topic) {
-          case "sensor/tegangan":
+          case "sensor/tegangan1": // Changed topic
             console.log(`MQTT: topic=${topic}, raw_message=${message.toString()}, parsed_value=${value}`);
             setVoltage(value);
             break;
-          case "sensor/arus":
+          case "sensor/arus1": // Changed topic
             console.log(`MQTT: topic=${topic}, raw_message=${message.toString()}, parsed_value=${value}`);
             setCurrent(value);
             break;
@@ -233,7 +233,7 @@ const Dashboard = () => {
                 style={{ width: `${powerFactorPercentage}%` }}
               ></div>
             </div>
-            <p className="text-xs text-muted-foreground"> {/* Added opening <p> tag here */}
+            <p className="text-xs text-muted-foreground">
               Current power factor reading
             </p>
           </CardContent>
