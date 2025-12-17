@@ -275,7 +275,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <a 
-              href="https://docs.google.com/spreadsheets/d/1aujfCfm4xMmnAkyia0wp-D1gmY_hkLwG_xMsCQ_nwZs/edit?gid=0#gid=0" 
+              href="https://docs.google.com/spreadsheets/d/1t2brUBsTltFHV7ZtlGylbDhkNn3_v5ZrXb7hp5nY1FU/edit?gid=0#gid=0" 
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-block w-full"
