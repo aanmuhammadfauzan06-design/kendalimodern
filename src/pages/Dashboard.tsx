@@ -83,13 +83,17 @@ const Dashboard = () => {
     client.on("message", (topic, message) => {
       try {
         const value = parseFloat(message.toString());
-        if (isNaN(value)) return;
+        if (isNaN(value)) {
+          console.warn(`Received non-numeric value for topic ${topic}: ${message.toString()}`);
+          return;
+        }
         
         switch (topic) {
           case "sensor/tegangan":
             setVoltage(value);
             break;
           case "sensor/arus":
+            console.log(`MQTT: topic=${topic}, raw_message=${message.toString()}, parsed_value=${value}`);
             setCurrent(value);
             break;
           case "sensor/kwh":
