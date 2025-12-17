@@ -15,6 +15,7 @@ const Dashboard = () => {
   const [frequency, setFrequency] = useState<number>(0);
   const [powerFactor, setPowerFactor] = useState<number>(0);
   const [cost, setCost] = useState<number>(0);
+  const [isWarning, setIsWarning] = useState<boolean>(false); // New state for warning
 
   useEffect(() => {
     // Connect to HiveMQ broker
@@ -23,7 +24,7 @@ const Dashboard = () => {
     client.on("connect", () => {
       console.log("Connected to MQTT broker");
       // Subscribe to all topics
-      client.subscribe("sensor/tegangan1", (err) => { // Changed topic
+      client.subscribe("sensor/tegangan1", (err) => {
         if (err) {
           console.error("Subscription error for sensor/tegangan1:", err);
         } else {
@@ -31,7 +32,7 @@ const Dashboard = () => {
         }
       });
       
-      client.subscribe("sensor/arus1", (err) => { // Changed topic
+      client.subscribe("sensor/arus1", (err) => {
         if (err) {
           console.error("Subscription error for sensor/arus1:", err);
         } else {
@@ -89,11 +90,11 @@ const Dashboard = () => {
         }
         
         switch (topic) {
-          case "sensor/tegangan1": // Changed topic
+          case "sensor/tegangan1":
             console.log(`MQTT: topic=${topic}, raw_message=${message.toString()}, parsed_value=${value}`);
             setVoltage(value);
             break;
-          case "sensor/arus1": // Changed topic
+          case "sensor/arus1":
             console.log(`MQTT: topic=${topic}, raw_message=${message.toString()}, parsed_value=${value}`);
             setCurrent(value);
             break;
@@ -130,6 +131,11 @@ const Dashboard = () => {
     };
   }, []);
 
+  // Update warning state based on current value
+  useEffect(() => {
+    setIsWarning(current > 3);
+  }, [current]);
+
   // Calculate percentages for gauge visualization
   const voltagePercentage = Math.min(100, Math.max(0, (voltage / 300) * 100)); // Assuming 300V max
   const currentPercentage = Math.min(100, Math.max(0, (isNaN(current) ? 0 : current / 50) * 100)); // Assuming 50A max, added isNaN check
@@ -137,7 +143,8 @@ const Dashboard = () => {
   const powerFactorPercentage = Math.min(100, Math.max(0, powerFactor * 100)); // Assuming 0-1 range
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
+    <div className={`min-h-screen flex flex-col items-center justify-center p-4 transition-colors duration-500 
+      ${isWarning ? 'bg-red-100 dark:bg-red-950' : 'bg-gray-100 dark:bg-gray-900'}`}>
       <div className="text-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
           Monitoring Kualitas Daya
@@ -173,6 +180,11 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold mb-2">{current.toFixed(1)} A</div>
+            {isWarning && (
+              <p className="text-red-600 dark:text-red-400 font-semibold mb-2">
+                PERINGATAN: Arus terlalu tinggi!
+              </p>
+            )}
             <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
               <div 
                 className="bg-green-600 h-2.5 rounded-full" 
