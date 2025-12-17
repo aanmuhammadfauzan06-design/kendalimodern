@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Gauge, Zap, Bolt, Power, Activity, FileSpreadsheet, Wallet } from "lucide-react"; // Removed Clock icon
+import { Gauge, Zap, Bolt, Power, Activity, FileSpreadsheet, Wallet } from "lucide-react";
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import mqtt from "mqtt";
 
@@ -11,7 +11,6 @@ const Dashboard = () => {
   const [voltage, setVoltage] = useState<number>(0);
   const [current, setCurrent] = useState<number>(0);
   const [kwh, setKwh] = useState<number>(0);
-  // Removed kwhRealtime state
   const [wattage, setWattage] = useState<number>(0);
   const [frequency, setFrequency] = useState<number>(0);
   const [powerFactor, setPowerFactor] = useState<number>(0);
@@ -47,8 +46,6 @@ const Dashboard = () => {
           console.log("Subscribed to sensor/kwh");
         }
       });
-
-      // Removed subscription to sensor/kwhrealtime
       
       client.subscribe("sensor/watt", (err) => {
         if (err) {
@@ -98,7 +95,6 @@ const Dashboard = () => {
           case "sensor/kwh":
             setKwh(value);
             break;
-          // Removed case for sensor/kwhrealtime
           case "sensor/watt":
             setWattage(value);
             break;
@@ -131,7 +127,7 @@ const Dashboard = () => {
 
   // Calculate percentages for gauge visualization
   const voltagePercentage = Math.min(100, Math.max(0, (voltage / 300) * 100)); // Assuming 300V max
-  const currentPercentage = Math.min(100, Math.max(0, (current / 50) * 100)); // Assuming 50A max
+  const currentPercentage = Math.min(100, Math.max(0, (isNaN(current) ? 0 : current / 50) * 100)); // Assuming 50A max, added isNaN check
   const frequencyPercentage = Math.min(100, Math.max(0, ((frequency - 45) / 10) * 100)); // Assuming 45-55Hz range
   const powerFactorPercentage = Math.min(100, Math.max(0, powerFactor * 100)); // Assuming 0-1 range
 
